@@ -1,0 +1,4 @@
+# Flatpak app IDs
+com.github.iwalton3.jellyfin-media-player
+dev.zed.Zed
+com.valvesoftware.Steam

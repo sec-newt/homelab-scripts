@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# ~/.local/bin/hp‑speak‑notify.sh
+# -------------------------------------------------
+# HyprPanel plug‑in: read every notification aloud.
+# -------------------------------------------------
+
+# HyprPanel sends notifications over the D-Bus interface:
+#   org.freedesktop.Notifications
+# We monitor that bus, extract the summary, and speak it.
+
+dbus-monitor --session "interface='org.freedesktop.Notifications'" |
+while read -r line; do
+    # Look for the "summary" field (the human‑readable title)
+    if [[ $line =~ ^\s*string\ \"(.*)\"$ ]]; then
+        summary="${BASH_REMATCH[1]}"
+        # Skip empty or generic messages that flood the bus
+        [[ -z $summary ]] && continue
+        spd-say "Notification: $summary"
+    fi
+done

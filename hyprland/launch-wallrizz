@@ -1,0 +1,4 @@
+#!/bin/bash
+# WallRizz launcher — ensures proper terminal environment before launching
+export TERM=xterm-256color
+WallRizz -a -d "$HOME/Pictures" "$@"

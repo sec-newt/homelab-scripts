@@ -1,0 +1,8 @@
+# AUR packages
+# Note: future-cyan-hyprcursor is NOT listed here — handled by git clone in install.sh (Section 7)
+
+warp-terminal
+zen-browser-bin
+brave-bin
+ags-hyprpanel-git
+piper-tts

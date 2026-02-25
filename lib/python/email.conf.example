@@ -1,0 +1,8 @@
+# Copy to ~/.config/scripts/email.conf and fill in real values
+# Used by email_sender.py for ProtonMail SMTP
+[smtp]
+sender = you@example.com
+password = your-protonmail-app-password
+default_recipient = notify@example.com
+server = smtp.protonmail.ch
+port = 587

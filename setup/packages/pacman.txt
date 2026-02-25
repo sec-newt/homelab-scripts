@@ -1,0 +1,92 @@
+# Core Hyprland
+hyprland
+hyprlock
+hypridle
+swww
+hyprpicker
+uwsm
+
+# Terminals
+alacritty
+kitty
+
+# App launcher
+fuzzel
+
+# File manager
+dolphin
+gvfs
+gvfs-mtp
+
+# Audio
+pipewire
+pipewire-pulse
+wireplumber
+pavucontrol
+playerctl
+gst-plugin-pipewire
+
+# Screenshot/clipboard
+grim
+slurp
+wl-clipboard
+
+# Desktop portal
+xdg-utils
+xdg-user-dirs
+xdg-desktop-portal-hyprland
+
+# Notifications
+libnotify
+mako
+
+# Storage
+udiskie
+
+# Networking
+networkmanager
+tailscale
+syncthing
+
+# Polkit
+polkit
+polkit-kde-agent
+
+# Theming
+qt6ct
+kvantum
+
+# Fonts
+noto-fonts
+noto-fonts-emoji
+ttf-firacode-nerd
+
+# Accessibility/TTS
+espeak-ng
+speech-dispatcher
+
+# RGB
+openrgb
+
+# Shell tools
+jq
+fzf
+zoxide
+starship
+bash-completion
+stow
+flatpak
+
+# Build/dev
+base-devel
+git
+curl
+wget
+btop
+neovim
+openssh
+python
+python-pip
+python-requests
+python-beautifulsoup4
+pipx
