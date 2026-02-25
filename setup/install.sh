@@ -2,6 +2,16 @@
 # =============================================================================
 # Hyprland New-Machine Bootstrap Script
 # =============================================================================
+#
+# NOTE: This script bootstraps ONE specific Arch Linux / Hyprland setup.
+# It is published as a reference and portfolio example, not as a
+# general-purpose installer. The stow package names, service units, and
+# repo structure are all tailored to the author's dotfiles layout.
+#
+# If you want to adapt it: fill in your own DOTFILES_REPO and SCRIPTS_REPO
+# below, review the stow package list (STOW_PACKAGES) and the systemd
+# service arrays, and adjust to match your own dotfiles structure.
+#
 # Usage: bash ~/setup-tmp/install.sh
 # Safe to re-run — idempotent throughout.
 # =============================================================================
@@ -9,10 +19,8 @@
 set -euo pipefail
 
 # --- Configuration (edit before running) -------------------------------------
-DOTFILES_REPO=""   # e.g. git@github.com:nk/dotfiles.git
-SCRIPTS_REPO=""    # e.g. git@github.com:nk/Scripts.git
-WALLRIZZ_REPO=""   # e.g. git@github.com:nk/WallRizz.git
-CURSOR_REPO=""     # e.g. git@github.com:nk/future-cyan-hyprcursor.git
+DOTFILES_REPO=""   # e.g. git@github.com:yourname/dotfiles.git
+SCRIPTS_REPO=""    # e.g. git@github.com:yourname/Scripts.git
 
 # --- Derived paths -----------------------------------------------------------
 SETUP_DIR="$(dirname "$(realpath "$0")")"
