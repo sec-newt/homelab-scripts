@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Security Tools Installation Script for Rhino Linux
-# This script installs common Kali Linux tools locally.
+# Security Tools Installation Script for Debian/Ubuntu-based systems
+# Installs common penetration testing tools via apt.
 
 echo "Starting installation of security tools..."
 

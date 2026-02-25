@@ -49,8 +49,6 @@ UI themes without manual configuration.
 |--------|-------------|
 | `audioswitch.py` | Cycles through PipeWire audio sinks via wpctl; sends a desktop notification with the new sink name |
 | `waybar-audio-sink.py` | Waybar custom module — outputs current audio sink as JSON |
-| `pick-wallpaper` | Fuzzel-based wallpaper picker; runs WallRizz for colour-scheme generation and applies via swww |
-| `launch-wallrizz` | Minimal wrapper to launch WallRizz TUI with correct terminal environment |
 
 **Skills shown:** Python, PipeWire/wpctl parsing, Waybar JSON module format, Wayland compositor integration
 
@@ -136,4 +134,4 @@ scp -r user@oldmachine:~/Scripts/setup ~/setup-tmp
 bash ~/setup-tmp/install.sh
 ```
 
-See `setup/README.md` (in the full Scripts repo) for the complete usage guide.
+See the header comments in `setup/install.sh` for full usage notes.
