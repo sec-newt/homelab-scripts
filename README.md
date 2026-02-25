@@ -103,6 +103,27 @@ packages in `setup/packages/`.
 
 ---
 
+### `docker/` — Self-Hosted Service Stacks
+
+Docker Compose configurations for a home server running Ubuntu + ZFS.
+All credentials and personal values are replaced with environment variables
+— copy `.env.example` to `.env` and fill in your own values.
+
+| File | Services |
+|------|---------|
+| `services.yml` | Nextcloud, Vaultwarden, Paperless-ngx, Radicale (CalDAV/CardDAV), MariaDB, Redis, Heimdall, Portainer |
+| `wazuh.yml` | Wazuh SIEM stack — manager, indexer (OpenSearch), and dashboard |
+
+**Design notes:**
+- YAML anchors (`x-environment`, `x-ts-core`) reduce repetition across services
+- Tailscale sidecar pattern for exposing services to Tailnet without opening firewall ports
+- Tailscale state persisted in named volumes — containers survive restarts without re-auth
+- Docker secrets pattern for database passwords
+
+**Skills shown:** Docker Compose, self-hosted services, Tailscale networking, SIEM deployment, secret management
+
+---
+
 ### `lib/python/` — Shared Python Modules
 
 `email_sender.py` — reusable ProtonMail SMTP module.
@@ -123,6 +144,7 @@ Most scripts target **Arch Linux + Hyprland + Wayland**. Specific dependencies:
 | Accessibility | `speech-dispatcher`, `spd-say`, `grim`, `slurp`, `tesseract`, `imagemagick`, `piper-tts` |
 | Hyprland scripts | `pipewire`, `wpctl`, `waybar`, `swww`, `fuzzel`, `hyprctl` |
 | Network monitor | `curl`, `ping`, `ssh`, `docker` (on target server) |
+| Docker stacks | `docker`, `docker compose`, `tailscale` |
 | Cloud/bastion | `linode-cli`, `jq`, `ssh` |
 | Bootstrap | `git`, `stow`, `yay` (bootstrapped by install.sh itself) |
 

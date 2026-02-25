@@ -1,0 +1,260 @@
+---
+version: "3.6"
+
+# Defining networks to be used for all containers.
+networks:
+  default:
+    driver: bridge
+  proxy:
+    name: proxy
+    driver: bridge
+  nextcloud:
+    name: nextcloud
+    driver: bridge
+
+secrets:
+  cloudflare_email:
+    file: $SECRETDIR/cloudflare_email
+  cloudflare_key:
+    file: $SECRETDIR/cloudflare_key
+  jwt_secret:
+    file: $SECRETDIR/jwt_secret
+  pi_admin:
+    file: $SECRETDIR/pi_admin
+  db_password:
+    file: $SECRETDIR/db_password
+  db_root_password:
+    file: $SECRETDIR/db_root_password
+  htpass:
+    file: $SECRETDIR/htpass
+# Defining common env variables
+x-environment: &default-tz-puid-pgid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+x-ts-media: &ts-media
+  DOCKER_MODS: ghcr.io/tailscale-dev/docker-mod:main
+  TAILSCALE_STATE_DIR: /var/lib/tailscale
+  TAILSCALE_SERVE_MODE: http  
+x-ts-core: &ts-core
+  DOCKER_MODS: ghcr.io/tailscale-dev/docker-mod:main
+  TAILSCALE_STATE_DIR: /var/lib/tailscale
+  TAILSCALE_SERVE_MODE: https 
+
+x-common-keys-core: &common-keys-core
+  networks:
+    - proxy
+  security_opt:
+    - no-new-privileges:true
+  restart: always
+
+x-common-keys-apps: &common-keys-apps
+  networks:
+    - proxy
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+x-common-keys-media: &common-keys-media
+  networks:
+    - proxy
+  security_opt:
+    - no-new-privileges:true
+  restart: "no"
+
+services:
+
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      TAILSCALE_HOSTNAME: heimdall
+      <<: *default-tz-puid-pgid
+      <<: *ts-core
+      TAILSCALE_SERVE_PORT: 80
+      TAILSCALE_AUTHKEY: ${TS_AUTHKEY}
+    volumes:
+      - $DOCKERDIR/heimdall/config:/config
+      - $DOCKERDIR/heimdall/ts:/var/lib/tailscale
+    ports:
+      - 8123:80
+      - 7443:443
+    restart: unless-stopped
+
+  # Portainer: WebUI for managing containers
+  portainer-ce:
+    <<: *common-keys-core
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    ports:
+     - "9000:9000"
+    # host:container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $DOCKERDIR/portainer/data:/data
+      - $DOCKERDIR/shared:/shared
+    environment:
+      <<: *default-tz-puid-pgid
+
+  # MariaDB Database for Docker
+  mariadb:
+    image: linuxserver/mariadb:latest
+    container_name: mariadb
+    restart: unless-stopped
+    networks:
+      - nextcloud
+    ports:
+      - "3306:3306"
+    volumes:
+      - $DOCKERDIR/mariadb/data:/config
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    secrets:
+      - db_root_password
+      - db_password
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - nextcloud
+    volumes:
+      - $DOCKERDIR/redis:/data
+  # Nextcloud server
+  ncts:
+    image: linuxserver/nextcloud:latest
+    container_name: ncts
+    <<: *common-keys-apps
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - nextcloud
+    ports:
+      - "8000:80"
+      - "8443:443"  
+    volumes:
+    # - /library/Nextcloud:/var/www/html
+      - /library/nc/data:/data
+      - /library/nc/config:/config
+      - /library/nc/ts:/var/lib/tailscale  
+    environment:
+      <<: *default-tz-puid-pgid
+      <<: *ts-core
+      TAILSCALE_HOSTNAME: nextcloud
+      TAILSCALE_SERVE_MODE: https
+      TAILSCALE_SERVE_PORT: 80
+      TAILSCALE_AUTHKEY: ${TS_AUTHKEY} 
+      REDIS_HOST: redis
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS}
+
+  # PHPMyAdmin WebUI for managing MySQL
+  phpmyadmin:
+    hostname: phpmyadmin
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    links:
+      - mariadb
+    networks:
+      - nextcloud
+    ports:
+      - 8001:80
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password
+      <<: *default-tz-puid-pgid
+     
+    ## Valtwarden - self hosted BitWarden
+  vaultwarden:
+    image: vaultwarden/server:latest #swap tag to raspberry to run on a raspberry pi
+    container_name: vaultwarden
+    volumes:
+      - $DOCKERDIR/vaultwarden:/data
+    restart: on-failure
+    networks:
+      - proxy
+    ports:
+      - 7081:80      
+    sysctls:
+      - "net.ipv6.conf.all.disable_ipv6=1"
+    environment:
+      <<: *default-tz-puid-pgid
+      WEBSOCKET_ENABLED: true
+      SIGNUPS_ALLOWED: false
+      INVITATIONS_ALLOWED: true
+      SHOW_PASSWORD_HINT: $SHOW_PASSWORD_HINT
+      ADMIN_TOKEN: $ADMIN_TOKEN
+
+      # Mail Server
+      SMTP_HOST: $SMTP_HOST
+      SMTP_FROM: $SMTP_FROM
+      SMTP_PORT: $SMTP_PORT
+      SMTP_SECURITY: $SMTP_SECURITY
+      SMTP_USERNAME: $SMTP_USERNAME
+      SMTP_PASSWORD: $SMTP_PASSWORD
+
+      # Logging
+      LOG_FILE: '/data/vaultwarden.log'
+      LOG_LEVEL: debug
+      SMTP_DEBUG: true
+  vw_backup:
+    image: bruceforce/bw_backup:latest #swap tag to rpi3 to run on a raspberry pi
+    container_name: vw_backup
+    restart: on-failure
+    depends_on:
+      - vaultwarden
+    volumes:
+      - $DOCKERDIR/vaultwarden:/data
+      - $DOCKERDIR/vaultwarden/backup:/backup
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      <<: *default-tz-puid-pgid
+      DB_FILE: /data/db.sqlite3
+      BACKUP_FILE: /backup/backup.sqlite3
+      BACKUP_FILE_PERMISSIONS: 700
+      CRON_TIME: 0 1 * * *
+      TIMESTAMP: false
+
+  # Paperless-ngx - Document Management
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    <<: *common-keys-apps
+    environment:
+      <<: [*default-tz-puid-pgid, *ts-media]
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_TIME_ZONE: America/Chicago
+      TAILSCALE_HOSTNAME: paperless
+      TAILSCALE_SERVE_PORT: 8000
+      TAILSCALE_AUTHKEY: ${TS_AUTHKEY}
+    volumes:
+      - $DOCKERDIR/paperless/data:/usr/src/paperless/data
+      - $DOCKERDIR/paperless/media:/usr/src/paperless/media
+      - $DOCKERDIR/paperless/export:/usr/src/paperless/export
+      - $DOCKERDIR/paperless/consume:/usr/src/paperless/consume
+      - $DOCKERDIR/paperless/ts:/var/lib/tailscale
+    ports:
+      - "8010:8000"
+    depends_on:
+      - redis
+    networks:
+      - nextcloud
+      - proxy
+
+  # Radicale - CalDAV/CardDAV server
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: radicale
+    <<: *common-keys-apps
+    ports:
+      - "5232:5232"
+    environment:
+      - TZ=$TZ
+    volumes:
+      - $DOCKERDIR/radicale/config:/etc/radicale
+      - $DOCKERDIR/radicale/collections:/data/collections
+      - $DOCKERDIR/radicale/log:/var/log/radicale
+    restart: unless-stopped
