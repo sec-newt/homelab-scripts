@@ -24,6 +24,31 @@ anytime.
 
 ---
 
+### `sprint-hub/` — Coursework Workflow Tool
+
+Textual TUI + CLI for capturing labeled text from any source (terminal, browser,
+clipboard) and pushing it to the correct Google Docs/Sheets cell in one action.
+Built to solve copy-paste errors and window-switching friction at high magnification
+(4–5× zoom). Each sprint unlocks documents progressively — `sprint-add` merges new
+docs into the existing config without losing prior work.
+
+| Command | What it does |
+|---------|-------------|
+| `sprint-init`    | Creates a sprint config from a Google Doc/Sheet URL; maps headings/cells interactively |
+| `sprint-add`     | Adds a newly-unlocked document mid-sprint; merges into existing YAML |
+| `sprint-capture` | Captures piped or clipboard text with auto-suggested label (editable before saving) |
+| `sprint-hub`     | Textual TUI scratchpad: buffer panel, section picker, one-key Push All to Google |
+
+Lives in `sec-newt/scripts` → `projects/sprint-hub/`. Installed via pipx, Hyprland
+special workspace integration (`$mainMod+F12` toggle, `$mainMod+Shift+X` clipboard
+capture).
+
+**Skills shown:** Python, Textual TUI, Google Docs/Sheets API, OAuth2, Wayland clipboard
+(wl-paste/wl-copy), Hyprland scratchpad integration, pipx packaging, YAML config, Click CLI,
+pytest + unittest.mock, accessible UI design (high-zoom friendly)
+
+---
+
 ### `accessibility/` — Notification Speaking & OCR Screen Reader
 
 Tools for spoken feedback and on-screen text reading using open-source TTS.
