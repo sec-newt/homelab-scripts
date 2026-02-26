@@ -39,13 +39,14 @@ docs into the existing config without losing prior work.
 | `sprint-capture` | Captures piped or clipboard text with auto-suggested label (editable before saving) |
 | `sprint-hub`     | Textual TUI scratchpad: buffer panel, section picker, one-key Push All to Google |
 
-Lives in `sec-newt/scripts` → `projects/sprint-hub/`. Installed via pipx, Hyprland
-special workspace integration (`$mainMod+F12` toggle, `$mainMod+Shift+X` clipboard
-capture).
+Installed via pipx. Hyprland special workspace integration (`$mainMod+F12` scratchpad
+toggle, `$mainMod+Shift+X` clipboard capture). 51 tests.
+
+→ **[Full setup and usage docs](sprint-hub/README.md)**
 
 **Skills shown:** Python, Textual TUI, Google Docs/Sheets API, OAuth2, Wayland clipboard
-(wl-paste/wl-copy), Hyprland scratchpad integration, pipx packaging, YAML config, Click CLI,
-pytest + unittest.mock, accessible UI design (high-zoom friendly)
+(wl-paste), Hyprland scratchpad integration, pipx packaging, YAML config, Click CLI,
+pytest + unittest.mock, accessible UI design (high-zoom workflow)
 
 ---
 
