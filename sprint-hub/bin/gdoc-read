@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+"""Read the full text of a Google Doc by URL or document ID."""
+import sys
+import os
+
+# Ensure sprint-hub is importable
+SPRINT_HUB = os.path.expanduser("~/Scripts/projects/sprint-hub")
+if SPRINT_HUB not in sys.path:
+    sys.path.insert(0, SPRINT_HUB)
+
+from sprint_hub.google_api import GoogleAPI
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: gdoc-read <url-or-doc-id>", file=sys.stderr)
+        sys.exit(1)
+
+    arg = sys.argv[1]
+    api = GoogleAPI()
+
+    if "docs.google.com" in arg:
+        doc_id, _ = api.extract_id_from_url(arg)
+    else:
+        doc_id = arg
+
+    text = api.read_doc_text(doc_id)
+    print(text)
+
+if __name__ == "__main__":
+    main()

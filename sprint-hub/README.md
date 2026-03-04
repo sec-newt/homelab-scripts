@@ -27,10 +27,15 @@ sprint_hub/
 ├── config.py      — per-sprint YAML config (doc URLs, label→cell mappings)
 ├── capture.py     — JSON buffer with add/remove/persist
 ├── suggest.py     — auto-label heuristics (nmap → port_scan, ffuf → directory_scan)
-├── google_api.py  — OAuth2 wrapper for Docs and Sheets APIs
+├── google_api.py  — OAuth2 wrapper for Docs and Sheets APIs (read, write, replace)
 ├── push.py        — buffer → Google routing logic
 ├── cli.py         — Click entry points (sprint-init, sprint-capture, etc.)
 └── tui.py         — Textual TUI scratchpad
+
+bin/               — standalone CLI utilities (copy to PATH manually)
+├── gdoc-read      — print full text of a Google Doc by URL
+├── gsheet-read    — print content of a Google Sheet by URL
+└── gdoc-edit      — replace text in a Google Doc (replaceAllText API)
 ```
 
 Config lives in `~/.config/sprint-hub/`. One YAML file per sprint, plus a
@@ -176,6 +181,43 @@ exec-once = [workspace special:sprint-hub silent] sprint-hub
 ```
 
 Change `F12` / `SHIFT+X` if those conflict with existing binds.
+
+---
+
+## Google API CLI utilities
+
+The `bin/` scripts are lightweight wrappers around `GoogleAPI` for ad-hoc use
+outside of the sprint workflow. Copy them to somewhere on `$PATH`:
+
+```bash
+cp bin/gdoc-read bin/gsheet-read bin/gdoc-edit ~/.local/bin/
+chmod +x ~/.local/bin/gdoc-{read,edit} ~/.local/bin/gsheet-read
+```
+
+| Command | What it does |
+|---------|-------------|
+| `gdoc-read <url>` | Print full plain text of a Google Doc (all tabs + tables) |
+| `gsheet-read <url> [sheet]` | Print sheet content as tab-separated text |
+| `gdoc-edit <url> "old" "new"` | Replace all occurrences of a string in a Doc; prints occurrence count |
+
+All three reuse the OAuth token at `~/.config/sprint-hub/token.json` — no
+separate auth needed once sprint-hub is set up.
+
+For batch replacements (multiple strings in one API call), use `GoogleAPI`
+directly:
+
+```python
+from sprint_hub.google_api import GoogleAPI
+
+api = GoogleAPI()
+api.docs.documents().batchUpdate(
+    documentId="<doc-id>",
+    body={"requests": [
+        {"replaceAllText": {"containsText": {"text": old, "matchCase": True}, "replaceText": new}}
+        for old, new in [("old1", "new1"), ("old2", "new2")]
+    ]}
+).execute()
+```
 
 ---
 

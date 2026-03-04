@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+"""Read the content of a Google Sheet by URL, optionally a specific sheet tab."""
+import sys
+import os
+
+SPRINT_HUB = os.path.expanduser("~/Scripts/projects/sprint-hub")
+if SPRINT_HUB not in sys.path:
+    sys.path.insert(0, SPRINT_HUB)
+
+from sprint_hub.google_api import GoogleAPI
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: gsheet-read <url-or-sheet-id> [sheet-name]", file=sys.stderr)
+        sys.exit(1)
+
+    arg = sys.argv[1]
+    sheet_name = sys.argv[2] if len(sys.argv) > 2 else None
+
+    api = GoogleAPI()
+
+    if "docs.google.com" in arg:
+        sheet_id, _ = api.extract_id_from_url(arg)
+    else:
+        sheet_id = arg
+
+    text = api.read_sheet(sheet_id, sheet_name)
+    print(text)
+
+if __name__ == "__main__":
+    main()

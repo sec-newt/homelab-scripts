@@ -57,6 +57,31 @@ class GoogleAPI:
 
     # ── sheets ────────────────────────────────────────────────────────────────
 
+    def read_sheet(self, spreadsheet_id: str, sheet_name: str | None = None) -> str:
+        """Return the content of a sheet (or all sheets) as tab-separated text.
+
+        If sheet_name is None, reads all sheets and separates them with headers.
+        """
+        if sheet_name:
+            sheet_names = [sheet_name]
+        else:
+            sheet_names = self.get_sheet_names(spreadsheet_id)
+
+        chunks = []
+        for name in sheet_names:
+            result = (
+                self.sheets.spreadsheets()
+                .values()
+                .get(spreadsheetId=spreadsheet_id, range=name)
+                .execute()
+            )
+            rows = result.get("values", [])
+            chunks.append(f"\n=== {name} ===\n")
+            for row in rows:
+                chunks.append("\t".join(str(cell) for cell in row))
+                chunks.append("\n")
+        return "".join(chunks)
+
     def get_sheet_names(self, spreadsheet_id: str) -> list[str]:
         result = (
             self.sheets.spreadsheets()
@@ -81,6 +106,47 @@ class GoogleAPI:
         ).execute()
 
     # ── docs ──────────────────────────────────────────────────────────────────
+
+    def read_doc_text(self, document_id: str) -> str:
+        """Return the full plain text content of a Google Doc, including all tabs and tables."""
+        doc = self.docs.documents().get(documentId=document_id, includeTabsContent=True).execute()
+        chunks = []
+
+        def extract_paragraph(para: dict) -> None:
+            for run in para.get("elements", []):
+                text = run.get("textRun", {}).get("content", "")
+                if text:
+                    chunks.append(text)
+
+        def extract_content(content: list) -> None:
+            for elem in content:
+                if "paragraph" in elem:
+                    extract_paragraph(elem["paragraph"])
+                elif "table" in elem:
+                    for row in elem["table"].get("tableRows", []):
+                        for cell in row.get("tableCells", []):
+                            extract_content(cell.get("content", []))
+                            chunks.append("\t")
+                        chunks.append("\n")
+
+        def extract_tab(tab: dict) -> None:
+            props = tab.get("tabProperties", {})
+            title = props.get("title", "")
+            if title:
+                chunks.append(f"\n\n=== {title} ===\n")
+            body = tab.get("documentTab", {}).get("body", {}).get("content", [])
+            extract_content(body)
+            for child in tab.get("childTabs", []):
+                extract_tab(child)
+
+        tabs = doc.get("tabs", [])
+        if tabs:
+            for tab in tabs:
+                extract_tab(tab)
+        else:
+            extract_content(doc.get("body", {}).get("content", []))
+
+        return "".join(chunks)
 
     def get_doc_headings(self, document_id: str) -> list[str]:
         doc = self.docs.documents().get(documentId=document_id).execute()

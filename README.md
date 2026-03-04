@@ -42,6 +42,10 @@ docs into the existing config without losing prior work.
 Installed via pipx. Hyprland special workspace integration (`$mainMod+F12` scratchpad
 toggle, `$mainMod+Shift+X` clipboard capture). 51 tests.
 
+Also includes standalone Google API CLI utilities in `bin/`: `gdoc-read` (full doc
+text extraction across all tabs), `gsheet-read`, and `gdoc-edit` (batch text
+replacement via `replaceAllText` in one API call).
+
 → **[Full setup and usage docs](sprint-hub/README.md)**
 
 **Skills shown:** Python, Textual TUI, Google Docs/Sheets API, OAuth2, Wayland clipboard
