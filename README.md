@@ -133,24 +133,29 @@ packages in `setup/packages/`.
 
 ---
 
-### `docker/` — Self-Hosted Service Stacks
+### `docker/calibre-import/` — Calibre Ebook Auto-Importer
 
-Docker Compose configurations for a home server running Ubuntu + ZFS.
-All credentials and personal values are replaced with environment variables
-— copy `.env.example` to `.env` and fill in your own values.
+Imports downloaded ebooks into a Calibre Docker container automatically.
+Uses `docker cp` to stage files into the container and `calibredb add` to import them —
+no shared volume mount required, works with any Calibre Docker setup.
 
-| File | Services |
-|------|---------|
-| `services.yml` | Nextcloud, Vaultwarden, Paperless-ngx, Radicale (CalDAV/CardDAV), MariaDB, Redis, Heimdall, Portainer |
-| `wazuh.yml` | Wazuh SIEM stack — manager, indexer (OpenSearch), and dashboard |
+- Scans a downloads directory for new book folders and loose ebook files
+- Tracks imported items to prevent duplicates across runs
+- Handles `.epub`, `.mobi`, `.azw3`, `.pdf`, and `.zip` (scene release archives)
+- Optional JSON status file for dashboard integration (Homepage `customapi` widget)
+- Fully configured via environment variables — drop a `.env` file next to the script
+- Includes systemd service + timer for hourly unattended runs
 
 **Design notes:**
-- YAML anchors (`x-environment`, `x-ts-core`) reduce repetition across services
-- Tailscale sidecar pattern for exposing services to Tailnet without opening firewall ports
-- Tailscale state persisted in named volumes — containers survive restarts without re-auth
-- Docker secrets pattern for database passwords
+- Container name validated against a character allowlist before use in `docker exec` — no injection
+- Status values validated against a fixed set before writing to JSON
+- Status HTTP server runs as `nobody` bound to LAN IP only — never root, never `0.0.0.0`
+- `find -print0` + `read -d ''` throughout — handles filenames with spaces and special characters
+- Processed items log prevents re-import on every run without needing a database
 
-**Skills shown:** Docker Compose, self-hosted services, Tailscale networking, SIEM deployment, secret management
+→ **[Full setup and usage docs](docker/calibre-import/README.md)**
+
+**Skills shown:** bash, Docker (`docker exec`, `docker cp`), `calibredb`, systemd services and timers, input validation, environment-variable-driven configuration, security hardening
 
 ---
 

@@ -1,0 +1,18 @@
+[Unit]
+Description=Import downloaded books into Calibre library
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Run as the user that owns the download directories and is in the docker group
+# Replace <YOUR_USER> with your actual username, then:
+#   sudo usermod -aG docker <YOUR_USER>
+User=<YOUR_USER>
+SupplementaryGroups=docker
+
+# Point EnvironmentFile at your filled-in .env
+EnvironmentFile=/path/to/calibre-import/.env
+ExecStart=/path/to/calibre-import/calibre-import.sh
+StandardOutput=journal
+StandardError=journal
