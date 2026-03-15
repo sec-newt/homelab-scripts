@@ -1,0 +1,14 @@
+[Unit]
+Description=Calibre import status HTTP server
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nogroup
+ExecStart=/usr/bin/python3 -m http.server 8999 --directory /var/lib/calibre-import --bind 192.168.1.253
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
