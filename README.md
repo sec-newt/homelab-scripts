@@ -79,8 +79,10 @@ UI themes without manual configuration.
 |--------|-------------|
 | `audioswitch.py` | Cycles through PipeWire audio sinks via wpctl; sends a desktop notification with the new sink name |
 | `waybar-audio-sink.py` | Waybar custom module — outputs current audio sink as JSON |
+| `zoomup.py` | Increases Hyprland's `cursor:zoom_factor` by 1 — bound to `Super+ScrollUp` |
+| `zoomdown.py` | Decreases Hyprland's `cursor:zoom_factor` by 1 (floor at 1) — bound to `Super+ScrollDown` |
 
-**Skills shown:** Python, PipeWire/wpctl parsing, Waybar JSON module format, Wayland compositor integration
+**Skills shown:** Python, PipeWire/wpctl parsing, Waybar JSON module format, Wayland compositor integration, Hyprland IPC (`hyprctl keyword`)
 
 ---
 
