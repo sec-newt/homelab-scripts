@@ -47,7 +47,7 @@ while IFS= read -r line; do
 
             # App-specific rules
             if [[ "${summary,,}" == "claude code" ]]; then
-                if [[ "${body,,}" == *"permission"* || "${body,,}" == *"approval"* || "${body,,}" == *"waiting"* ]]; then
+                if [[ "${body,,}" == *"permission"* || "${body,,}" == *"approval"* ]]; then
                     msg="Claude needs approval"
                 else
                     msg="Claude"
