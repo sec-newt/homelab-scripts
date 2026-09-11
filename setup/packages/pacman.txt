@@ -57,6 +57,11 @@ polkit-kde-agent
 qt6ct
 kvantum
 
+# xrdb -- loads ~/.Xresources at Hyprland startup to set Xft.dpi for XWayland
+# apps, which get no compositor scaling because xwayland force_zero_scaling is
+# on. Without this they render at a bare 96 DPI: the smallest text on screen.
+xorg-xrdb
+
 # Secret Service / keyring. Provides /usr/bin/ksecretd, which Hyprland starts
 # via exec-once. Without it org.freedesktop.secrets does not exist and any app
 # storing credentials there fails -- Buzz refuses every agent (2026-09-10).
