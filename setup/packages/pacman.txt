@@ -7,6 +7,7 @@ hyprpicker
 uwsm
 
 # Terminals
+ghostty
 alacritty
 kitty
 
@@ -56,10 +57,19 @@ polkit-kde-agent
 qt6ct
 kvantum
 
+# Secret Service / keyring. Provides /usr/bin/ksecretd, which Hyprland starts
+# via exec-once. Without it org.freedesktop.secrets does not exist and any app
+# storing credentials there fails -- Buzz refuses every agent (2026-09-10).
+kwallet
+
 # Fonts
 noto-fonts
 noto-fonts-emoji
 ttf-firacode-nerd
+# Atkinson Hyperlegible Mono (Braille Institute, built for low vision).
+# The terminal configs name "AtkynsonMono Nerd Font Mono" -- note the Y --
+# and will SILENTLY fall back to another mono font if this is missing.
+otf-atkinsonhyperlegiblemono-nerd
 
 # Accessibility/TTS
 espeak-ng
